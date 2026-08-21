@@ -1,0 +1,10 @@
+streamlit
+geopandas
+pandas
+numpy
+h3
+pydeck
+altair
+shapely
+plotly
+networkx
