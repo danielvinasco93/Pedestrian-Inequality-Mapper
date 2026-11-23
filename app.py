@@ -332,7 +332,7 @@ with st.sidebar:
                             'h3_index': str(row['h3_index']),
                             'polygon': coords,
                             'fill_color': fill_c,
-                            'tooltip_html': tip
+                            '_html': tip
                         })
                 heatmap_data = records
 
@@ -468,7 +468,7 @@ if st.session_state.selected_node:
                     "polygon": list(hull.exterior.coords),
                     # Now dynamically reads the Pydeck RGBA array from the master palette
                     "line_color": TIME_PALETTE[t]["pydeck"], 
-                    "tooltip_html": f"<b>{t} min Boundary</b>"
+                    "tooltip_html": f"{t} min Boundary"
                 })
 
     # --- Extract 1st Nearest Amenity Dual Paths (S, H, E, R) ---
@@ -490,7 +490,7 @@ if st.session_state.selected_node:
                 # Check if the selected node itself contains this amenity
                 sel_poi_count = float(sel_rows.iloc[0].get(poi_col, 0)) if not sel_rows.empty else 0
                 if sel_poi_count > 0:
-                    tooltip_text = f"<b>{badge_char} ({cat_name})</b><br/>Network Walk: 0 m (0.0 min)<br/>Straight Euclidean: 0 m (0.0 min)"
+                    tooltip_text = f"{badge_char} ({cat_name})\nNetwork Walk: 0 m (0.0 min)\nStraight Euclidean: 0 m (0.0 min)"
                     orange_endpoint_records.append({'lon': float(origin_lon), 'lat': float(origin_lat), 'tooltip_html': tooltip_text})
                     
                     raw_letter_pin_records.append({
@@ -556,9 +556,9 @@ if st.session_state.selected_node:
                             })
                         
                         # Target Endpoint receives Amenity Tooltip; Origin receives dot without tooltip
-                        tooltip_text = f"<b>{badge_char} ({cat_name})</b><br/>Network Walk: {int(round(d_net_m))} m ({t_net_min} min)<br/>Straight Euclidean: {int(round(d_euc_m))} m ({t_euc_min} min)"
+                        tooltip_text = f"{badge_char} ({cat_name})\nNetwork Walk: {int(round(d_net_m))} m ({t_net_min} min)\nStraight Euclidean: {int(round(d_euc_m))} m ({t_euc_min} min)"
                         orange_endpoint_records.append({'lon': float(target_lon), 'lat': float(target_lat), 'tooltip_html': tooltip_text})
-                        orange_endpoint_records.append({'lon': float(origin_lon), 'lat': float(origin_lat)})
+                        orange_endpoint_records.append({'lon': float(origin_lon), 'lat': float(origin_lat), 'tooltip_html': ""})
 
                         # 2. Topological shortest path using true curved edge geometries
                         try:
@@ -659,7 +659,7 @@ if st.session_state.selected_node:
                 
                 merged_badge = ", ".join(unique_badges)
                 first_rec = sorted_recs[0]
-                combined_tooltips = "<br/>".join([r['tooltip_html'] for r in sorted_recs])
+                combined_tooltips = "\n".join([r['tooltip_html'] for r in sorted_recs])
                 
                 letter_pin_records.append({
                     'target_id': first_rec['target_id'],
@@ -783,11 +783,11 @@ def get_node_properties(row):
         tooltip_lines.append(f"Euclidian access: {euc_cats}")
         tooltip_lines.append(f"Topological access: {net_cats}")
         tooltip_lines.append(f"False positives: {diff}")
-        tooltip_lines.append("<br/>")
+        tooltip_lines.append("")
     
     # 1. Add Amenities
     if has_amenities:
-        tooltip_lines.append("<b>NODE AMENITIES</b>")
+        tooltip_lines.append("NODE AMENITIES")
         amenities = [f"• {col.replace('poi_', '')}: {int(row[col])}" 
                      for col in poi_cols if row.get(col, 0) > 0]
         tooltip_lines.extend(amenities)
@@ -795,9 +795,9 @@ def get_node_properties(row):
     # 2. Add Demographics
     if has_population:
         if has_amenities:
-            tooltip_lines.append("<br/><b>NODE DEMOGRAPHICS</b>")
+            tooltip_lines.append("\nNODE DEMOGRAPHICS")
         else:
-            tooltip_lines.append("<b>NODE DEMOGRAPHICS</b>")
+            tooltip_lines.append("NODE DEMOGRAPHICS")
             
         # Extract, round, and store the partial groups first
         rounded_partials = {}
@@ -812,13 +812,13 @@ def get_node_properties(row):
         # Enforce mathematical parity: Calculate total directly from the visible rounded partials
         if rounded_partials:
             enforced_total = sum(rounded_partials.values())
-            tooltip_lines.append(f"• <b>Total: {enforced_total}</b>")
+            tooltip_lines.append(f"• Total: {enforced_total}")
             
             # Append the specific demographic breakdown with indentation for hierarchy
             for name, val in rounded_partials.items():
-                tooltip_lines.append(f"&nbsp;&nbsp;&nbsp;- {name}: {val}")
+                tooltip_lines.append(f"   - {name}: {val}")
         
-    tooltip = "<br/>".join(tooltip_lines) if tooltip_lines else None
+    tooltip = "\n".join(tooltip_lines) if tooltip_lines else ""
     
     return radius, fill, border, render_order, tooltip
 
@@ -1071,7 +1071,7 @@ deck = pdk.Deck(
     layers=final_layers,
     initial_view_state=pdk.ViewState(latitude=df_nodes.lat.mean(), longitude=df_nodes.lon.mean(), zoom=14),
     map_style=pdk.map_styles.DARK,
-    tooltip={"html": "{tooltip_html}"},
+    tooltip={"text": "{tooltip_html}"},
     parameters={"depthTest": False, "blend": True, "blendFunc": [770, 771, 1, 771]}
 )
 
@@ -2029,3 +2029,4 @@ with st.sidebar:
     else:
 
         st.info("Waiting for node selection on the map...")
+
