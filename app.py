@@ -323,10 +323,10 @@ with st.sidebar:
                         coords = [[float(pt[0]), float(pt[1])] for pt in list(geom.exterior.coords)]
                         fill_c = get_uvr_color(row)
                         tip = (
-                            f"<b>{selected_demo_label}:</b> {int(round(row[pop_col])):,}<br/>"
-                            f"<b>Urban Vitality (IQM {travel_time}m):</b> {row[vitality_col]:.2f}<br/>"
-                            f"<b>Socio-Functional Ratio (UVR):</b> {row['uvr_ratio']:.2f}<br/>"
-                            f"<b>Inequity Percentile:</b> {row['uvr_pct']:.1f}%"
+                            f"{selected_demo_label}: {int(round(row[pop_col])):,}\n"
+                            f"Urban Vitality (IQM {travel_time}m): {row[vitality_col]:.2f}\n"
+                            f"Socio-Functional Ratio (UVR): {row['uvr_ratio']:.2f}\n"
+                            f"Inequity Percentile: {row['uvr_pct']:.1f}%"
                         )
                         records.append({
                             'h3_index': str(row['h3_index']),
@@ -2027,4 +2027,5 @@ with st.sidebar:
                     st.warning("No vitality profile data available for this node.")
 
     else:
+
         st.info("Waiting for node selection on the map...")
